@@ -1,6 +1,5 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * sismo-connect rn app
  *
  * @format
  */
@@ -8,6 +7,8 @@
 import React from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Button,
+  Linking,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -15,84 +16,77 @@ import {
   Text,
   useColorScheme,
   View,
+  WebView,
 } from 'react-native';
 
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+
 import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  AuthRequest,
+  AuthType,
+  ClaimRequest,
+  SismoConnect,
+  SismoConnectClientConfig,
+} from '@sismo-core/sismo-connect-client';
 
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  let request = () => {
+    const config: SismoConnectClientConfig = {
+      // you will need to register an appId in the Factory
+      appId: '0xd083e52833d6f2843a85a2a1650a789a',
+      devMode: {
+        enabled: true,
+        displayRawResponse: false,
+      },
+    };
+
+    const sismoConnect = SismoConnect(config);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const claim: ClaimRequest = {
+      groupId: '0x81b5a6eab960875283f864836b8b396e',
+    };
+    const auth: AuthRequest = {
+      authType: AuthType.VAULT,
+    };
+    const url = encodeURI(
+      sismoConnect.getRequestLink({
+        auth: auth,
+      }),
+    );
+
+    console.log(url);
+    Linking.openURL(url);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaView>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+        backgroundColor={Colors.white}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <View style={{backgroundColor: Colors.white}}>
+          <Section title="sismo-connect mobile">Connecting to Vault</Section>
+          <Button title="Request proof from Vault" onPress={request} />
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Section({children, title}: SectionProps): JSX.Element {
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionDescription}>{children}</Text>
+    </View>
   );
 }
 
@@ -109,9 +103,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
   },
 });
 
