@@ -9,10 +9,12 @@ import {
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 
+const prodVaultLink = 'https://web3.ro';
+
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
   let requestProof = () => {
-    Linking.openURL('http://localhost:3000').then(Promise.resolve);
+    Linking.openURL(prodVaultLink).then(Promise.resolve);
   };
 
   return (
